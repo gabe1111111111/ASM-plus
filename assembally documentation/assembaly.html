@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assembly Language Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            line-height: 1.8;
+            color: #e0e0e0;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0d1b2a 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+        
+        header {
+            background: linear-gradient(90deg, #00d4ff 0%, #0099ff 50%, #6600ff 100%);
+            color: #000;
+            padding: 4rem 2rem;
+            text-align: center;
+            border-bottom: 4px solid #00d4ff;
+            box-shadow: 0 10px 40px rgba(0, 212, 255, 0.3);
+        }
+        
+        header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            color: #001a33;
+        }
+        
+        container {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 1rem;
+        }
+        
+        nav {
+            background: rgba(0, 20, 40, 0.7);
+            padding: 1.5rem 0;
+            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.2);
+            margin-bottom: 3rem;
+            border-top: 2px solid #00d4ff;
+            border-bottom: 2px solid #6600ff;
+            backdrop-filter: blur(10px);
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 3rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        nav a {
+            text-decoration: none;
+            color: #00d4ff;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+        
+        nav a:hover {
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff;
+            transform: scale(1.1);
+        }
+        
+        section {
+            background: rgba(20, 30, 60, 0.5);
+            padding: 3rem;
+            margin-bottom: 3rem;
+            border-radius: 0;
+            box-shadow: 0 10px 40px rgba(0, 212, 255, 0.15);
+            border-left: 4px solid #00d4ff;
+            border-right: 2px solid #6600ff;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        section:hover {
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.25);
+            border-left: 4px solid #ff00ff;
+        }
+        
+        section h2 {
+            color: #00d4ff;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #6600ff;
+            padding-bottom: 1rem;
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+        
+        section p {
+            margin-bottom: 1.5rem;
+            color: #b0b0b0;
+            font-size: 1.1rem;
+        }
+        
+        code {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 3px 8px;
+            border-radius: 0;
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+        
+        pre {
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            padding: 2rem;
+            border-radius: 0;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border: 2px solid #00ff00;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+            border-left: 4px solid #ff00ff;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+            background: rgba(0, 10, 30, 0.6);
+        }
+        
+        th {
+            background: linear-gradient(90deg, #6600ff 0%, #00d4ff 100%);
+            color: #ffffff;
+            padding: 1rem 0.75rem;
+            text-align: left;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid #00d4ff;
+        }
+        
+        td {
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            padding: 1rem 0.75rem;
+            color: #c0c0c0;
+        }
+        
+        tbody tr:nth-child(odd) {
+            background: rgba(0, 212, 255, 0.05);
+        }
+        
+        tbody tr:nth-child(even) {
+            background: rgba(102, 0, 255, 0.05);
+        }
+        
+        tbody tr:hover {
+            background: rgba(0, 212, 255, 0.15);
+            color: #00d4ff;
+            box-shadow: inset 0 0 10px rgba(0, 212, 255, 0.2);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #666;
+            border-top: 2px solid #00d4ff;
+            margin-top: 4rem;
+            background: rgba(0, 20, 40, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Assembly Language Documentation</h1>
+        <p>A comprehensive guide to the Assembly assembly language</p>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="#introduction">Introduction</a></li>
+            <li><a href="#basics">Basics</a></li>
+            <li><a href="#syntax">Syntax</a></li>
+            <li><a href="#examples">Examples</a></li>
+        </ul>
+    </nav>
+    
+    <container>
+        <section id="introduction">
+            <h2>ISA</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>operation</th>
+                        <th>opp code</th>
+                        <th>description</th>
+                        <th>number of clock cycles</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>ADD</td><td>0X00</td><td>adds a register to b register and stores it to specified register</td><td>6</td></tr>
+                    <tr><td>AND</td><td>0X01</td><td>ands a register with b register and stores it to specified register</td><td>6</td></tr>
+                    <tr><td>OR</td><td>0X02</td><td>ors a register with b register and stores it to specified register</td><td>6</td></tr>
+                    <tr><td>XOR</td><td>0X03</td><td>xors a register with b register and stores it to specified register</td><td>6</td></tr>
+                    <tr><td>ECHO</td><td>0X04</td><td>pushes A register through to output and saves to specifies register; allows things like storing to RAM and moving within register file</td><td>6</td></tr>
+                    <tr><td>LSFT</td><td>0X05</td><td>left shifts a register and stores it to specified register</td><td>6</td></tr>
+                    <tr><td>SUB</td><td>0X06</td><td>subtracts a register from b register and stores it to specified register</td><td>6</td></tr>
+                    <tr><td>NAND</td><td>0X07</td><td>nands a register with b register and stores it to specified register</td><td>6</td></tr>
+                    <tr><td>NOR</td><td>0X08</td><td>nors a register with b register and stores it to specified register</td><td>6</td></tr>
+                    <tr><td>XNOR</td><td>0X09</td><td>xnors a register with b register and stores it to specified register</td><td>6</td></tr>
+                    <tr><td>NOT</td><td>0X0A</td><td>inverts a register and stores it to specified register</td><td>6</td></tr>
+                    <tr><td>RSFT</td><td>0X0B</td><td>right shifts a register and stores it to specified register</td><td>6</td></tr>
+                    <tr><td>BRREQ</td><td>0X10</td><td>branches to value in specified register if a and b registers are equal</td><td>5 or 3</td></tr>
+                    <tr><td>BRRGT</td><td>0X11</td><td>branches to value in specified register if a > b</td><td>5 or 3</td></tr>
+                    <tr><td>BRRLT</td><td>0X12</td><td>branches to value in specified register if a < b</td><td>5 or 3</td></tr>
+                    <tr><td>BRRNEQ</td><td>0X13</td><td>branches to value in specified register if a and b registers are not equal</td><td>5 or 3</td></tr>
+                    <tr><td>BRRGEQ</td><td>0X14</td><td>branches to value in specified register if a >= b</td><td>5 or 3</td></tr>
+                    <tr><td>BRRLEQ</td><td>0X15</td><td>branches to value in specified register if a <= b</td><td>5 or 3</td></tr>
+                    <tr><td>BREQ</td><td>0X10</td><td>branches to immediate value or label if a and b registers are equal</td><td>6 or 3</td></tr>
+                    <tr><td>BRGT</td><td>0X11</td><td>branches to immediate value or label if a > b</td><td>6 or 3</td></tr>
+                    <tr><td>BRLT</td><td>0X12</td><td>branches to immediate value or label if a < b</td><td>6 or 3</td></tr>
+                    <tr><td>BRNEQ</td><td>0X13</td><td>branches to immediate value or label if a and b registers are not equal</td><td>6 or 3</td></tr>
+                    <tr><td>BRGEQ</td><td>0X14</td><td>branches to immediate value or label if a >= b</td><td>6 or 3</td></tr>
+                    <tr><td>BRLEQ</td><td>0X15</td><td>branches to immediate value or label if a <= b</td><td>6 or 3</td></tr>
+                    <tr><td>LDA</td><td>0X16</td><td>loads specified register to a register</td><td>4</td></tr>
+                    <tr><td>LDB</td><td>0X17</td><td>loads specified register to a register</td><td>4</td></tr>
+                    <tr><td>ST</td><td>0X18</td><td>stores output register to RAM address</td><td>4</td></tr>
+                    <tr><td>PUSH</td><td>0X19</td><td>pushes specified register to stack</td><td>5</td></tr>
+                    <tr><td>POP</td><td>0X1A</td><td>pops stack to specified register</td><td>5</td></tr>
+                    <tr><td>LEA</td><td>0X1B</td><td>loads current address to specified register</td><td>5</td></tr>
+                    <tr><td>LDI</td><td>0X1C</td><td>loads immediate value to a register</td><td>3</td></tr>
+                    <tr><td>PERADD</td><td>0X1D</td><td>loads specified register to port as a device address</td><td>4</td></tr>
+                    <tr><td>PEROPP</td><td>0X1E</td><td>loads specified register to port as an opp code</td><td>4</td></tr>
+                    <tr><td>PERDAT</td><td>0X1F</td><td>loads specified register to port as data</td><td>4</td></tr>
+                    <tr><td>PEREXE</td><td>0X20</td><td>tells peripheral to execute command</td><td>3</td></tr>
+                    <tr><td>PERLD</td><td>0X21</td><td>loads peripheral input data to RAM</td><td>4</td></tr>
+                    <tr><td>JMPR</td><td>0X22</td><td>unconditional jump to value in specified register</td><td>5</td></tr>
+                    <tr><td>JMP</td><td>0X22</td><td>unconditional jump to immediate value or register</td><td>4</td></tr>
+                    <tr><td>TRAP</td><td>0X23</td><td>executes a trap instruction (OS API) effectively jmp</td><td>4</td></tr>
+                </tbody>
+            </table>
+        </section>
+        
+
+        <section id="basics">
+            <h2>Basics</h2>
+            <p>Get started with fundamental concepts:</p>
+            <p><img src="computer.png" alt="Computer illustration" style="max-width:100%;height:auto;" /></p>
+        </section>
+        
+        <section id="introduction">
+            <h2>Micro Code</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>operation</th>
+                        <th>cycle 1</th>
+                        <th>cycle 2</th>
+                        <th>cycle 3</th>
+                        <th>cycle 4</th>
+                        <th>cycle 5</th>
+                        <th>cycle 6</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
+
+                </tbody>
+            </table>
+        </section>
+
+        <section id="syntax">
+            <h2>Syntax</h2>
+            <p>Basic syntax structure:</p>
+            <pre>LABEL: INSTRUCTION operand1, operand2
+; Comments start with semicolon</pre>
+            <p>Common instructions include <code>MOV</code>, <code>ADD</code>, <code>SUB</code>, <code>JMP</code>, and <code>CALL</code>.</p>
+        </section>
+        
+        <section id="examples">
+            <h2>Examples</h2>
+            <p>Simple program example:</p>
+            <pre>section .data
+    msg db "Hello, Assembly!"
+
+section .text
+    global main
+    main:
+        MOV rax, 1
+        RET</pre>
+        </section>
+    </container>
+    
+    <footer></footer>
+</body>
+</html>

@@ -42,7 +42,7 @@
             color: #001a33;
         }
         
-        container {
+        .container {
             max-width: 1200px;
             margin: 3rem auto;
             padding: 0 1rem;
@@ -118,15 +118,22 @@
             font-size: 1.1rem;
         }
         
+        
         code {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 3px 8px;
-            border-radius: 0;
-            font-family: 'Courier New', monospace;
-            color: #00ff00;
-            border: 1px solid #00ff00;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+            font-family: "Fira Code", "Consolas", "Courier New", monospace;
+            background-color: #1e1e1e;   /* dark theme */
+            color: #00d4ff;              /* neon green (logic vibe) */
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 0.95em;
+            border: 1px solid #333;
         }
+
+        /* Optional: hover effect (feels interactive) */
+        code:hover {
+            background-color: #2a2a2a;
+        }
+
         
         pre {
             background: rgba(0, 0, 0, 0.8);
@@ -177,6 +184,10 @@
             color: #00d4ff;
             box-shadow: inset 0 0 10px rgba(0, 212, 255, 0.2);
         }
+                
+        .overbar {
+            text-decoration: overline;
+        }
         
         footer {
             text-align: center;
@@ -186,92 +197,253 @@
             margin-top: 4rem;
             background: rgba(0, 20, 40, 0.5);
         }
+
+        /* floating back-to-top button */
+        #topButton {
+            display: none;
+            position: fixed;
+            top: 1.5rem;
+            left: 1.5rem;
+            z-index: 100;
+            border: none;
+            outline: none;
+            background-color: #00d4ff;
+            color: #fff;
+            cursor: pointer;
+            padding: 0.8rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.4);
+            transition: transform 0.2s ease, opacity 0.15s ease;
+        }
+
+        #topButton:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+        
+        ul {
+            padding-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        /* First level */
+        ul > li {
+            margin-bottom: 6px;
+        }
+
+        /* Nested lists (level 2) */
+        ul ul {
+            padding-left: 25px;
+            margin-top: 6px;
+            border-left: 2px solid #ccc;   /* visual nesting line */
+        }
+
+        /* Nested list items */
+        ul ul li {
+            margin-bottom: 4px;
+            position: relative;
+        }
+
+        /* Optional: change bullet style per level */
+        ul {
+            list-style-type: disc;
+        }
+
+        ul ul {
+            list-style-type: circle;
+        }
+
+        ul ul ul {
+            list-style-type: square;
+        }
     </style>
 </head>
 <body>
-    <header>
+    <header id="header">
         <h1>Assembly Language Documentation</h1>
         <p>A comprehensive guide to the Assembly assembly language</p>
     </header>
     
     <nav>
         <ul>
-            <li><a href="#introduction">Introduction</a></li>
-            <li><a href="#basics">Basics</a></li>
-            <li><a href="#syntax">Syntax</a></li>
-            <li><a href="#examples">Examples</a></li>
+            <li><a href="#description">description</a></li>
+            <li><a href="#isa">ISA</a></li>
+            <li><a href="#schematic">schematic</a></li>
+            <li><a href="#microcode">Micro Code</a></li>
+            <li><a href="#devnotes">dev notes</a></li>
+            
         </ul>
     </nav>
     
-    <container>
-        <section id="introduction">
+    <div class="container">
+        <section id="description">
+            <h2>Description</h2>
+
+            <p>
+                The system is based on an 8-bit data bus architecture. The Arithmetic Logic Unit (ALU) 
+                supports eight fundamental operations: ADD, SUB, AND, OR, XOR, ECHO, left shift, and right shift. 
+                An optional inversion stage allows the output of any operation to be inverted, providing a total 
+                of sixteen arithmetic and logic operations.
+            </p>
+
+            <p>
+                The ALU operates on two dedicated input registers, A and B, and produces results in a single 
+                output register (OUT). The register file contains sixteen general-purpose registers that are 
+                used for computation, data storage, and instruction operands.
+            </p>
+
+            <p>
+                The system includes 256 bytes of data RAM and 256 bytes of stack memory. Program memory is 
+                organized as 1K × 16-bit words, where each instruction consists of an 8-bit opcode and an 
+                8-bit operand field.
+            </p>
+
+            <p>
+                A peripheral interface is provided for communication with external devices. The interface 
+                uses three inputs:
+            </p>
+
+            <ul>
+                <li><strong>Device Address:</strong> Selects the target peripheral device</li>
+                <li><strong>Operation Code:</strong> Specifies the command to be executed by the device</li>
+                <li><strong>Data:</strong> The value or information to be transmitted</li>
+            </ul>
+
+            <p>
+                A dedicated execute command triggers the peripheral interface to send the configured data 
+                to the selected device. On input events, an interrupt is generated. The device address is 
+                mapped to a corresponding service routine within the operating system, and program execution 
+                is redirected via a jump instruction.
+            </p>
+
+            <p>
+                Although the core data path is 8-bit, the memory subsystem uses wider addressing to support 
+                process separation at the hardware level. Dedicated memory structures are used to store the 
+                program counter and stack pointer for each process. Process 0 is reserved for the operating system.
+            </p>
+        </section>
+        <section id="isa">
             <h2>ISA</h2>
             <table>
                 <thead>
                     <tr>
                         <th>operation</th>
-                        <th>opp code</th>
+                        <th>opcode</th>
                         <th>description</th>
                         <th>number of clock cycles</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td>ADD</td><td>0X00</td><td>adds a register to b register and stores it to specified register</td><td>6</td></tr>
-                    <tr><td>AND</td><td>0X01</td><td>ands a register with b register and stores it to specified register</td><td>6</td></tr>
-                    <tr><td>OR</td><td>0X02</td><td>ors a register with b register and stores it to specified register</td><td>6</td></tr>
-                    <tr><td>XOR</td><td>0X03</td><td>xors a register with b register and stores it to specified register</td><td>6</td></tr>
-                    <tr><td>ECHO</td><td>0X04</td><td>pushes A register through to output and saves to specifies register; allows things like storing to RAM and moving within register file</td><td>6</td></tr>
-                    <tr><td>LSFT</td><td>0X05</td><td>left shifts a register and stores it to specified register</td><td>6</td></tr>
-                    <tr><td>SUB</td><td>0X06</td><td>subtracts a register from b register and stores it to specified register</td><td>6</td></tr>
-                    <tr><td>NAND</td><td>0X07</td><td>nands a register with b register and stores it to specified register</td><td>6</td></tr>
-                    <tr><td>NOR</td><td>0X08</td><td>nors a register with b register and stores it to specified register</td><td>6</td></tr>
-                    <tr><td>XNOR</td><td>0X09</td><td>xnors a register with b register and stores it to specified register</td><td>6</td></tr>
-                    <tr><td>NOT</td><td>0X0A</td><td>inverts a register and stores it to specified register</td><td>6</td></tr>
-                    <tr><td>RSFT</td><td>0X0B</td><td>right shifts a register and stores it to specified register</td><td>6</td></tr>
-                    <tr><td>BRREQ</td><td>0X10</td><td>branches to value in specified register if a and b registers are equal</td><td>5 or 3</td></tr>
-                    <tr><td>BRRGT</td><td>0X11</td><td>branches to value in specified register if a > b</td><td>5 or 3</td></tr>
-                    <tr><td>BRRLT</td><td>0X12</td><td>branches to value in specified register if a < b</td><td>5 or 3</td></tr>
-                    <tr><td>BRRNEQ</td><td>0X13</td><td>branches to value in specified register if a and b registers are not equal</td><td>5 or 3</td></tr>
-                    <tr><td>BRRGEQ</td><td>0X14</td><td>branches to value in specified register if a >= b</td><td>5 or 3</td></tr>
-                    <tr><td>BRRLEQ</td><td>0X15</td><td>branches to value in specified register if a <= b</td><td>5 or 3</td></tr>
-                    <tr><td>BREQ</td><td>0X10</td><td>branches to immediate value or label if a and b registers are equal</td><td>6 or 3</td></tr>
-                    <tr><td>BRGT</td><td>0X11</td><td>branches to immediate value or label if a > b</td><td>6 or 3</td></tr>
-                    <tr><td>BRLT</td><td>0X12</td><td>branches to immediate value or label if a < b</td><td>6 or 3</td></tr>
-                    <tr><td>BRNEQ</td><td>0X13</td><td>branches to immediate value or label if a and b registers are not equal</td><td>6 or 3</td></tr>
-                    <tr><td>BRGEQ</td><td>0X14</td><td>branches to immediate value or label if a >= b</td><td>6 or 3</td></tr>
-                    <tr><td>BRLEQ</td><td>0X15</td><td>branches to immediate value or label if a <= b</td><td>6 or 3</td></tr>
-                    <tr><td>LDA</td><td>0X16</td><td>loads specified register to a register</td><td>4</td></tr>
-                    <tr><td>LDB</td><td>0X17</td><td>loads specified register to a register</td><td>4</td></tr>
-                    <tr><td>ST</td><td>0X18</td><td>stores output register to RAM address</td><td>4</td></tr>
-                    <tr><td>PUSH</td><td>0X19</td><td>pushes specified register to stack</td><td>5</td></tr>
-                    <tr><td>POP</td><td>0X1A</td><td>pops stack to specified register</td><td>5</td></tr>
-                    <tr><td>LEA</td><td>0X1B</td><td>loads current address to specified register</td><td>5</td></tr>
-                    <tr><td>LDI</td><td>0X1C</td><td>loads immediate value to a register</td><td>3</td></tr>
-                    <tr><td>PERADD</td><td>0X1D</td><td>loads specified register to port as a device address</td><td>4</td></tr>
-                    <tr><td>PEROPP</td><td>0X1E</td><td>loads specified register to port as an opp code</td><td>4</td></tr>
-                    <tr><td>PERDAT</td><td>0X1F</td><td>loads specified register to port as data</td><td>4</td></tr>
-                    <tr><td>PEREXE</td><td>0X20</td><td>tells peripheral to execute command</td><td>3</td></tr>
-                    <tr><td>PERLD</td><td>0X21</td><td>loads peripheral input data to RAM</td><td>4</td></tr>
-                    <tr><td>JMPR</td><td>0X22</td><td>unconditional jump to value in specified register</td><td>5</td></tr>
-                    <tr><td>JMP</td><td>0X22</td><td>unconditional jump to immediate value or register</td><td>4</td></tr>
-                    <tr><td>TRAP</td><td>0X23</td><td>executes a trap instruction (OS API) effectively jmp</td><td>4</td></tr>
+                    <tr><td>ADD</td>     <td>0x00</td> <td>Adds the value in register B to the value in register A and stores the result in the specified destination register.</td>                                  <td>5</td></tr>
+                    <tr><td>SUB</td>     <td>0x01</td> <td>Subtracts the value in register B from the value in register A and stores the result in the specified destination register.</td>                       <td>5</td></tr>
+                    <tr><td>AND</td>     <td>0x02</td> <td>Performs a bitwise AND between registers A and B and stores the result in the specified destination register.</td>                                      <td>5</td></tr>
+                    <tr><td>OR</td>      <td>0x03</td> <td>Performs a bitwise OR between registers A and B and stores the result in the specified destination register.</td>                                           <td>5</td></tr>
+                    <tr><td>XOR</td>     <td>0x04</td> <td>Performs a bitwise XOR between registers A and B and stores the result in the specified destination register.</td>                                        <td>5</td></tr>
+                    <tr><td>ECHO</td>    <td>0x05</td> <td>Copies the value in register A to the output register and stores the same value in the specified destination register.</td>                              <td>5</td></tr>
+                    <tr><td>LSFT</td>    <td>0x06</td> <td>Left shifts the value in register A by one bit and stores the result in the specified destination register.</td>                                                  <td>5</td></tr>
+                    <tr><td>RSFT</td>    <td>0x07</td> <td>Right shifts the value in register A by one bit and stores the result in the specified destination register.</td>                                                 <td>5</td></tr>
+                    <tr><td>NADD</td>    <td>0x08</td> <td>Adds registers A and B, inverts the resulting value, and stores the result in the specified destination register.</td>                                       <td>5</td></tr>
+                    <tr><td>NSUB</td>    <td>0x09</td> <td>Subtracts register B from register A, inverts the resulting value, and stores the result in the specified destination register.</td>                 <td>5</td></tr>
+                    <tr><td>NAND</td>    <td>0x0A</td> <td>Performs a bitwise AND between registers A and B, inverts the result, and stores it in the specified destination register.</td>                     <td>5</td></tr>
+                    <tr><td>NOR</td>     <td>0x0B</td> <td>Performs a bitwise OR between registers A and B, inverts the result, and stores it in the specified destination register.</td>                          <td>5</td></tr>
+                    <tr><td>XNOR</td>    <td>0x0C</td> <td>Performs a bitwise XOR between registers A and B, inverts the result, and stores it in the specified destination register.</td>                      <td>5</td></tr>
+                    <tr><td>NOT</td>     <td>0x0D</td> <td>Inverts every bit of the value in register A and stores the result in the specified destination register.</td>                                                     <td>5</td></tr>
+                    <tr><td>NLSFT</td>   <td>0x0E</td> <td>Left shifts the value in register A by one bit, inverts the result, and stores it in the specified destination register.</td>                                <td>5</td></tr>
+                    <tr><td>NRSFT</td>   <td>0x0F</td> <td>Right shifts the value in register A by one bit, inverts the result, and stores it in the specified destination register.</td>                              <td>5</td></tr>
+                    <tr><td>BRREQ</td>   <td>0x10</td> <td>Branches to the address stored in the specified register if the values in registers A and B are equal.</td>                                                      <td>5 or 4</td></tr>
+                    <tr><td>BRRGT</td>   <td>0x11</td> <td>Branches to the address stored in the specified register if the value in register A is greater than the value in register B.</td>                      <td>5 or 4</td></tr>
+                    <tr><td>BRRLT</td>   <td>0x12</td> <td>Branches to the address stored in the specified register if the value in register A is less than the value in register B.</td>                            <td>5 or 4</td></tr>
+                    <tr><td>BRRNEQ</td>  <td>0x13</td> <td>Branches to the address stored in the specified register if the values in registers A and B are not equal.</td>                                              <td>5 or 4</td></tr>
+                    <tr><td>BRRGEQ</td>  <td>0x14</td> <td>Branches to the address stored in the specified register if the value in register A is greater than or equal to the value in register B.</td>   <td>5 or 4</td></tr>
+                    <tr><td>BRRLEQ</td>  <td>0x15</td> <td>Branches to the address stored in the specified register if the value in register A is less than or equal to the value in register B.</td>         <td>5 or 4</td></tr>
+                    <tr><td>BREQ</td>    <td>0x16</td> <td>Branches to the specified immediate address or label if the values in registers A and B are equal.</td>                                                            <td>4</td></tr>
+                    <tr><td>BRGT</td>    <td>0x17</td> <td>Branches to the specified immediate address or label if the value in register A is greater than the value in register B.</td>                            <td>4</td></tr>
+                    <tr><td>BRLT</td>    <td>0x18</td> <td>Branches to the specified immediate address or label if the value in register A is less than the value in register B.</td>                                   <td>4</td></tr>
+                    <tr><td>BRNEQ</td>   <td>0x19</td> <td>Branches to the specified immediate address or label if the values in registers A and B are not equal.</td>                                                    <td>4</td></tr>
+                    <tr><td>BRGEQ</td>   <td>0x1A</td> <td>Branches to the specified immediate address or label if the value in register A is greater than or equal to the value in register B.</td>        <td>4</td></tr>
+                    <tr><td>BRLEQ</td>   <td>0x1B</td> <td>Branches to the specified immediate address or label if the value in register A is less than or equal to the value in register B.</td>               <td>4</td></tr>
+                    <tr><td>LDA</td>     <td>0x1C</td> <td>Loads the value from the specified register into register A.</td>                                                                                                                        <td>5</td></tr>
+                    <tr><td>LDB</td>     <td>0x1D</td> <td>Loads the value from the specified register into register B.</td>                                                                                                                        <td>5</td></tr>
+                    <tr><td>ST</td>      <td>0x1E</td> <td>Stores the value in the output register to the specified RAM address.</td>                                                                                                        <td>4</td></tr>
+                    <tr><td>PUSH</td>    <td>0x1F</td> <td>Pushes the value from the specified register onto the system stack.</td>                                                                                                         <td>6</td></tr>
+                    <tr><td>POP</td>     <td>0x20</td> <td>Pops the top value from the stack into the specified register.</td>                                                                                                                    <td>6</td></tr>
+                    <tr><td>LEA</td>     <td>0x21</td> <td>Loads the current program counter address into the specified register.</td>                                                                                                     <td>5</td></tr>
+                    <tr><td>LDI</td>     <td>0x22</td> <td>Loads an immediate constant value directly into the A register.</td>                                                                                                                  <td>4</td></tr>
+                    <tr><td>PERADD</td>  <td>0x23</td> <td>Writes the value from the specified register to the peripheral address port to select a device.</td>                                                            <td>5</td></tr>
+                    <tr><td>PEROPP</td>  <td>0x24</td> <td>Writes the value from the specified register to the peripheral opcode port to specify a command.</td>                                                        <td>5</td></tr>
+                    <tr><td>PERDAT</td>  <td>0x25</td> <td>Writes the value from the specified register to the peripheral data port.</td>                                                                                             <td>5</td></tr>
+                    <tr><td>PEREXE</td>  <td>0x26</td> <td>Signals the peripheral interface to execute the previously loaded command.</td>                                                                                          <td>4</td></tr>
+                    <tr><td>PERLD</td>   <td>0x27</td> <td>Reads data from the peripheral interface and stores it in the specified register.</td>                                                                                   <td>5</td></tr>
+                    <tr><td>JMPR</td>    <td>0x28</td> <td>Performs an unconditional jump to the address contained in the specified register.</td>                                                                                <td>4</td></tr>
+                    <tr><td>JMP</td>     <td>0x29</td> <td>Performs an unconditional jump to the specified immediate address or label.</td>                                                                                           <td>3</td></tr>
+                    <tr><td>TRAP</td>    <td>0x2A</td> <td>Invokes a system trap or operating system service routine at the specified trap address.</td>                                                                     <td>3</td></tr>
+                    <tr><td>SP</td>     <td>0x2B</td> <td>loads immediate value program register</td>                                                                                                                                                      <td>6</td></tr>
+                    <tr><td>SPR</td>    <td>0x2C</td> <td>loads value program register from specified register.</td>                                                                                                                                <td>7</td></tr>
                 </tbody>
             </table>
         </section>
         
 
-        <section id="basics">
-            <h2>Basics</h2>
-            <p>Get started with fundamental concepts:</p>
-            <p><img src="computer.png" alt="Computer illustration" style="max-width:100%;height:auto;" /></p>
+        <section id="schematic">
+            <h2>schematic</h2>
+            <p><img src="computer.drawio.svg" alt="Computer illustration" style="max-width:100%;height:auto;" /></p>
         </section>
         
-        <section id="introduction">
+        <section id="microcode">
             <h2>Micro Code</h2>
+            <h3>Control Signal Definitions</h3>
+            <ul>
+                <li><code>PM_ADDR</code> – Program memory update address</li>
+                <li><code>PM_OE</code> – Program memory output enable</li>
+                <li><code>PM_INC</code> – Program memory increment</li>
+
+                <li><code>PC_INC</code> – Program counter increment</li>
+                <li><code>PC_RST</code> – Program counter reset</li>
+                <li><code>PC_OE</code> – Program counter output enable</li>
+
+                <li><code>RF_LD_ADDR</code> – Register file load address</li>
+                <li><code>RF_RE</code> – Register file read enable</li>
+                <li><code>RF_WE</code> – Register file write enable</li>
+                <li><code>RF_OE</code> – Register file output enable</li>
+
+                <li><code>A_LD</code> – Load register A</li>
+                <li><code>B_LD</code> – Load register B</li>
+                <li><code>OUT_LD</code> – Load output register</li>
+                <li><code>OUT_OE</code> – Output register output enable</li>
+
+                <li><code>ALU_OP</code> – Set ALU operation</li>
+                <li><code>FLAG_SEL</code> – Select flag condition</li>
+
+                <li><code>MAR_LD</code> – Memory address register load</li>
+                <li><code>RAM_WE</code> – RAM write enable</li>
+
+                <li><code>SP_INC</code> – Stack pointer increment</li>
+                <li><code>SP_DEC</code> – Stack pointer decrement</li>
+                <li><code>STK_WE</code> – Stack write enable</li>
+                <li><code>STK_RE</code> – Stack read enable</li>
+
+                <li><code>JMP</code> – Jump enable</li>
+
+                <li><code>PER_OP</code> – Peripheral operation select</li>
+                <li><code>PER_LD</code> – Peripheral load</li>
+                <li><code>PER_RE</code> – Peripheral read enable</li>
+
+                <li><code>SP_MEM_WE</code> – Stack pointer memory write enable</li>
+                <li><code>SP_MEM_RE</code> – Stack pointer memory read enable</li>
+                <li><code>PC_MEM_WE</code> – Program counter memory write enable</li>
+                <li><code>PC_MEM_RE</code> – Program counter memory read enable</li>
+                <li><code>PR_LD</code> – Process register load</li>
+                <li><code>SP_JMP</code> – Load stack pointer and jump</li>
+
+                <li><code>—</code> – Invalid or unused microinstruction cycle (triggers an hardware error condition)</li>
+            </ul>
             <table>
                 <thead>
                     <tr>
                         <th>operation</th>
+                        <th>cycle 0</th>
                         <th>cycle 1</th>
                         <th>cycle 2</th>
                         <th>cycle 3</th>
@@ -282,52 +454,143 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
-                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
-                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
-                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
-                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
-                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
-                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
-                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
-                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
-                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
-                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
-                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
-                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
-                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
-                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
-                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
-                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
-                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
-                    <tr><td>ISR LD</td><td></td><td></td><td></td><td></td><td></td></tr>
-
+                    <tr><td>ALU instructions</td>       <td>PM_ADDR</td> <td>ALU_OP, OUT_LD, PM_OE, RF_LD_ADDR</td> <td>OUT_OE, RF_WE</td> <td>PC_INC</td> <td>PC_RST</td> <td>—</td> <td>—</td></tr>
+                    <tr><td>branch to register true</td><td>PM_ADDR</td> <td>FLAG_SEL</td>                             <td>PM_OE, RF_LD_ADDR</td> <td>RF_OE, JMP</td> <td>PC_RST</td> <td>—</td> <td>—</td></tr>
+                    <tr><td>branch to register false</td><td>PM_ADDR</td><td>FLAG_SEL</td>                             <td>PC_INC</td>            <td>PC_RST</td>     <td>—</td>      <td>—</td> <td>—</td></tr>
+                    <tr><td>branch immediate true</td>  <td>PM_ADDR</td> <td>FLAG_SEL</td>                             <td>PM_OE, JMP</td>       <td>PC_RST</td>     <td>—</td>      <td>—</td> <td>—</td></tr>
+                    <tr><td>branch immediate false</td> <td>PM_ADDR</td> <td>FLAG_SEL</td>                             <td>PC_INC</td>            <td>PC_RST</td>     <td>—</td>      <td>—</td> <td>—</td></tr>
+                    <tr><td>LDA</td>                   <td>PM_ADDR</td> <td>PM_OE, RF_LD_ADDR</td>                     <td>RF_RE, A_LD</td>       <td>PC_INC</td>     <td>PC_RST</td> <td>—</td> <td>—</td></tr>
+                    <tr><td>LDB</td>                   <td>PM_ADDR</td> <td>PM_OE, RF_LD_ADDR</td>                     <td>RF_RE, B_LD</td>       <td>PC_INC</td>     <td>PC_RST</td> <td>—</td> <td>—</td></tr>
+                    <tr><td>ST</td>                    <td>PM_ADDR</td> <td>PM_OE, MAR_LD, RAM_WE</td>                 <td>PC_INC</td>            <td>PC_RST</td>     <td>—</td>      <td>—</td> <td>—</td></tr>
+                    <tr><td>PUSH</td>                  <td>PM_ADDR</td> <td>PM_OE, RF_LD_ADDR</td>                     <td>SP_INC</td>            <td>RF_RE, STK_WE</td> <td>PC_INC</td> <td>PC_RST</td> <td>—</td></tr>
+                    <tr><td>POP</td>                   <td>PM_ADDR</td> <td>PM_OE, RF_LD_ADDR</td>                     <td>STK_RE, RF_WE</td>     <td>SP_DEC</td>     <td>PC_INC</td> <td>PC_RST</td> <td>—</td></tr>
+                    <tr><td>LEA</td>                   <td>PM_ADDR</td> <td>PM_OE, RF_LD_ADDR</td>                     <td>PC_OE, RF_WE</td>      <td>PC_INC</td>     <td>PC_RST</td> <td>—</td> <td>—</td></tr>
+                    <tr><td>LDI</td>                   <td>PM_ADDR</td> <td>PM_OE, A_LD</td>                           <td>PC_INC</td>            <td>PC_RST</td>     <td>—</td>      <td>—</td> <td>—</td></tr>
+                    <tr><td>PER OUT</td>               <td>PM_ADDR</td> <td>PM_OE, RF_LD_ADDR</td>                     <td>RF_OE, PER_OP, PER_LD</td> <td>PC_INC</td> <td>PC_RST</td> <td>—</td> <td>—</td></tr>
+                    <tr><td>PEREXE</td>                <td>PM_ADDR</td> <td>PER_OP, PER_LD</td>                        <td>PM_INC</td>            <td>PC_RST</td>     <td>—</td>      <td>—</td> <td>—</td></tr>
+                    <tr><td>PERRD</td>                 <td>PM_ADDR</td> <td>PM_OE, RF_LD_ADDR</td>                     <td>PER_RE, RF_WE</td>     <td>PC_INC</td>     <td>PC_RST</td> <td>—</td> <td>—</td></tr>
+                    <tr><td>JMP/TRAP</td>              <td>PM_ADDR</td> <td>PM_OE, JMP</td>                            <td>PC_RST</td>            <td>—</td>          <td>—</td>      <td>—</td> <td>—</td></tr>
+                    <tr><td>JMPR</td>                  <td>PM_ADDR</td> <td>PM_OE, RF_LD_ADDR</td>                     <td>RF_OE, JMP</td>        <td>PC_RST</td>     <td>—</td>      <td>—</td> <td>—</td></tr>
+                    <tr><td>SP</td>                    <td>PM_ADDR</td> <td>SP_MEM_WE, PC_MEM_WE</td>                  <td>PM_OE, PR_LD</td>      <td>SP_MEM_RE, PC_MEM_RE, SP_JMP</td> <td>PC_INC</td> <td>PC_RST</td> <td>—</td></tr>
+                    <tr><td>SPR</td>                   <td>PM_ADDR</td> <td>SP_MEM_WE, PC_MEM_WE</td>                  <td>PM_OE, RF_LD_ADDR</td> <td>RF_OE, PR_LD</td> <td>SP_MEM_RE, PC_MEM_RE, SP_JMP</td> <td>PC_INC</td> <td>PC_RST</td></tr>
                 </tbody>
             </table>
         </section>
-
-        <section id="syntax">
-            <h2>Syntax</h2>
-            <p>Basic syntax structure:</p>
-            <pre>LABEL: INSTRUCTION operand1, operand2
-; Comments start with semicolon</pre>
-            <p>Common instructions include <code>MOV</code>, <code>ADD</code>, <code>SUB</code>, <code>JMP</code>, and <code>CALL</code>.</p>
+        <section id="devnotes">
+            <h2>dev notes</h2>
+            <ul>
+                <li>
+                    Branch condition names assume the previous operation was a subtraction, 
+                    but remain valid for general flag-based evaluation. The conditions are defined as:
+                    <ul>
+                        <li><code>equals (EQ)</code> → Z</li>
+                        <li><code>less than (LT)</code> → C</li>
+                        <li><code>not equals (NE)</code> → <span class="overbar">Z</span></li>
+                        <li><code>greater than or equal (GE)</code> → <span class="overbar">C</span></li>
+                        <li><code>greater than (GT)</code> → <span class="overbar">Z</span> · <span class="overbar">C</span></li>
+                        <li><code>less than or equal (LE)</code> → C + Z</li>
+                    </ul>
+                </li>
+                <li></li>
+            </ul>
         </section>
-        
-        <section id="examples">
-            <h2>Examples</h2>
-            <p>Simple program example:</p>
-            <pre>section .data
-    msg db "Hello, Assembly!"
+        <section>
+            <h2>5 Year Development Plan</h2>
+            <ul>
+                <li>
+                    <h3>Year 1 – Core CPU</h3>
+                    <ul>
+                        <li>Adder</li>
+                        <li>Adder / Subtracter</li>
+                        <li>Arithmetic Logic Unit (ALU)</li>
+                        <li>ALU decoding and flag generation</li>
+                        <li>Register file</li>
+                        <li>RAM and Memory Address Register (MAR)</li>
+                        <li>Program memory and Program Counter (PC)</li>
+                        <li>Assembler and programming tools</li>
+                        <li>Stack implementation</li>
+                        <li>Peripheral port interface (port-mapped I/O)</li>
+                        <li>Process register</li>
+                        <li>LCD display output</li>
+                    </ul>
+                </li>
 
-section .text
-    global main
-    main:
-        MOV rax, 1
-        RET</pre>
+                <li>
+                    <h3>Year 2 – Compiler</h3>
+                    <ul>
+                        <li>Lexer</li>
+                        <li>Parser</li>
+                        <li>Intermediate representation (IR)</li>
+                        <li>Code generation for target ISA</li>
+                        <li>Basic optimizations</li>
+                        <li>standard library</li>
+                    </ul>
+                </li>
+
+                <li>
+                    <h3>Year 3 – Peripherals and Libraries</h3>
+                    <ul>
+                        <li>UART (serial communication)</li>
+                        <li>UART library</li>
+                        <li>PS/2 keyboard interface</li>
+                        <li>PS/2 library</li>
+                        <li>Audio output (PWM / tone generation)</li>
+                        <li>audio library</li>
+                        <li>SD card interface (SPI, raw sector access)</li>
+                        <li>file library</li>
+                        <li>hdmi card</li>
+                        <li>graphics library</li>
+                        <li>graphics card</li>
+                        <li>upgrade graphics library</li>
+                        <li>usb interface</li>
+                        <li>library</li>
+                        <li>ESP32 based wifi card</li>
+                        <li>network library</li>
+                        <li>browser</li>
+                    </ul>
+                </li>
+
+                <li>
+                    <h3>Year 4 – Operating System</h3>
+                    <ul>
+                        <li>Bootloader</li>
+                        <li>Memory management (basic allocation)</li>
+                        <li>Process model (single-task → multi-task)</li>
+                        <li>Interrupt handling</li>
+                        <li>File system support (FAT or custom)</li>
+                        <li>Shell / command interface</li>
+                        <li>drivers</li>
+                    </ul>
+                </li>
+
+                <li>
+                    <h3>Year 5 – System Expansion</h3>
+                    <ul>
+                        <li>bit width expansion</li>
+                        <li>Performance optimizations (pipeline or microcode refinement)</li>
+                        <li>Advanced peripherals</li>
+                        <li>Graphics output (framebuffer-based)</li>
+                        <li>Expanded instruction set</li>
+                        <li>Improved compiler optimizations</li>
+                        <li>System integration and refinement</li>
+                    </ul>
+                </li>
+            </ul>
         </section>
-    </container>
+
+
+    </div>
     
+    <button id="topButton" title="Return to top">↑ Top</button>
     <footer></footer>
+    <script>
+        const topButton = document.getElementById('topButton');
+        window.onscroll = function () {
+            topButton.style.display = (document.documentElement.scrollTop > 240 || document.body.scrollTop > 240) ? 'block' : 'none';
+        };
+        topButton.addEventListener('click', function () {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
 </body>
 </html>

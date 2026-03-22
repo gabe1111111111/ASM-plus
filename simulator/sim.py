@@ -1,11 +1,90 @@
+import tkinter as tk
+import time
+from abc import ABC, abstractmethod
+
+
+class IC(ABC):
+    _count = 0  # track how many ICs created
+
+    def __init__(self, pinWidth=4, pinLength=8):
+        self.pinWidth = pinWidth
+        self.pinLength = pinLength
+        self.pinNumber = pinLength * 2
+        self.gui_frame = None
+        IC._count += 1
+        self.id = IC._count
+        self.pins = [Pin() for _ in range(self.pinNumber)]
+
+    def show(self, root):
+        # Use dynamic sizing
+        canvas_width = self.pinWidth * 30
+        canvas_height = (self.pinLength + 2) * 30
+
+        self.gui_frame = tk.Frame(root)
+        self.gui_frame.pack(padx=10, pady=10)
+        frame = self.gui_frame
+
+        # Canvas in center
+        canvas = tk.Canvas(frame, width=canvas_width, height=canvas_height, highlightthickness=0)
+        canvas.grid(row=0, column=1, rowspan=self.pinLength + 2, columnspan=self.pinWidth)
+
+        # Outline rectangle
+        canvas.create_rectangle(2, 2, canvas_width - 2, canvas_height - 2, outline="black", width=2)
+
+        # IC label, rotated
+        canvas.create_text(canvas_width // 2, canvas_height // 2, text=self.__class__.__name__,font=("Arial", 10, "bold"), angle=90)
+
+        self.pins = []
+
+        for i in range(self.pinNumber):
+            # LEFT SIDE
+            if i < self.pinLength:
+                row = i + 1
+                # Left label right next to canvas
+                label_col = 1
+                button_col = 0
+                label_sticky = "e"
+            # RIGHT SIDE
+            else:
+                row =  self.pinNumber - i
+                # Right label right next to canvas
+                label_col = self.pinWidth
+                button_col = self.pinWidth + 1
+                label_sticky = "w"
+
+            # Pin button
+            button = tk.Button(frame, text=" ", width=2, height=1)
+            button.grid(row=row, column=button_col, padx=2, pady=2)
+
+            # Pin label
+            label = tk.Label(frame, text=str(i + 1))
+            label.grid(row=row, column=label_col, sticky=label_sticky, padx=2, pady=2)
+
+            self.pins.append((button, label))
+
+
+
+
+
+    def remove(self):
+        if self.gui_frame:
+            self.gui_frame.destroy()
+            self.gui_frame = None
+
+    @abstractmethod
+    def update(self):
+        """Override this in subclasses to implement IC logic"""
+        pass
+
 class Pin:
     def __init__(self):
         self.output = False
 
 # 7408 - AND
-class IC7408:
+class IC7408(IC):
+    count = 0
     def __init__(self):
-        self.pins = [Pin() for _ in range(14)]
+        super().__init__(pinWidth=4, pinLength=7)
     
     def update(self):
         if self.pins[13].output and not self.pins[6].output:  # VCC = 1, GND = 0
@@ -16,11 +95,12 @@ class IC7408:
         else:
             for i in [2,5,7,10]:
                 self.pins[i].output = False
-
+    
 # 7432 - OR
-class IC7432:
+class IC7432(IC):
+    count = 0
     def __init__(self):
-        self.pins = [Pin() for _ in range(14)]
+        super().__init__(pinWidth=4, pinLength=7)
     
     def update(self):
         if self.pins[13].output and not self.pins[6].output:
@@ -33,9 +113,10 @@ class IC7432:
                 self.pins[i].output = False
 
 # 7486 - XOR
-class IC7486:
+class IC7486(IC):
+    count = 0
     def __init__(self):
-        self.pins = [Pin() for _ in range(14)]
+        super().__init__(pinWidth=4, pinLength=7)
     
     def update(self):
         if self.pins[13].output and not self.pins[6].output:
@@ -48,9 +129,10 @@ class IC7486:
                 self.pins[i].output = False
 
 # 7406 - NOT (inverter)
-class IC7406:
+class IC7406(IC):
+    count = 0
     def __init__(self):
-        self.pins = [Pin() for _ in range(14)]
+        super().__init__(pinWidth=4, pinLength=7)
     
     def update(self):
         if self.pins[13].output and not self.pins[6].output:
@@ -63,11 +145,12 @@ class IC7406:
         else:
             for i in [1,3,5,7,9,11]:
                 self.pins[i].output = False
-
+    
 # 7483 - 4-bit adder
-class IC7483:
+class IC7483(IC):
+    count = 0
     def __init__(self):
-        self.pins = [Pin() for _ in range(16)]
+        super().__init__(pinWidth=4, pinLength=8)
     
     def update(self):
         if self.pins[11].output and not self.pins[4].output:  # VCC = pin12, GND = pin5 (adjust if needed)
@@ -84,10 +167,11 @@ class IC7483:
         else:
             for i in [8,5,1,14,13]:
                 self.pins[i].output = False
-
-class IC74151:
+   
+class IC74151(IC):
+    count = 0
     def __init__(self):
-        self.pins = [Pin() for _ in range(16)]
+        super().__init__(pinWidth=4, pinLength=8)
     
     def update(self):
         if self.pins[15].output and not self.pins[7].output:  # VCC = pin12, GND = pin5 (adjust if needed)
@@ -99,9 +183,11 @@ class IC74151:
         else:
             for i in [4, 5]:
                 self.pins[i].output = False
-class IC74244:
+
+class IC74244(IC):
+    count = 0
     def __init__(self):
-        self.pins = [Pin() for _ in range(20)]
+        super().__init__(pinWidth=4, pinLength=10)
     
     def update(self):
         for i in [2, 4, 6, 8, 11, 13, 15, 17]:
@@ -117,10 +203,11 @@ class IC74244:
                 self.pins[4].output = self.pins[14].output
                 self.pins[6].output = self.pins[12].output
                 self.pins[8].output = self.pins[10].output
-
-class IC74273:
+    
+class IC74273(IC):
+    count = 0
     def __init__(self):
-        self.pins = [Pin() for _ in range(20)]
+        super().__init__(pinWidth=4, pinLength=10)
     
     def update(self):
         if self.pins[15].output and not self.pins[7].output:  # VCC = pin12, GND = pin5 (adjust if needed)
@@ -138,10 +225,12 @@ class IC74273:
                 self.pins[18].output = self.pins[17].output
         else:
             for i in [1, 4, 5, 8, 11, 14, 15, 18]:
-                self.pins[i].output = False            
-class ICHM62256:
+                self.pins[i].output = False          
+    
+class ICHM62256(IC):
+    count = 0
     def __init__(self):
-        self.pins = [Pin() for _ in range(28)]
+        super().__init__(pinWidth=7, pinLength=14)
         self.data = [0 for _ in range(2**15)]
     
     def update(self):
@@ -163,11 +252,11 @@ class ICHM62256:
         else:
             for i in [10, 11, 12, 14, 15, 16, 17, 18]:
                 self.pins[i].output = False
-
-
-class IC74138:
+   
+class IC74138(IC):
+    count = 0
     def __init__(self):
-        self.pins = [Pin() for _ in range(16)]
+        super().__init__(pinWidth=4, pinLength=7)
     
     def update(self):
         out = [14, 13, 12, 11, 10, 9, 8, 6]
@@ -177,12 +266,11 @@ class IC74138:
             index = (self.pins[2].output << 2) | (self.pins[1].output << 1) | self.pins[0].output
             if not self.pins[3].output and not self.pins[4].output and  self.pins[5].output:
                 self.pins[out[index]].output = True
-
-
-
-class IC744040:
+    
+class IC744040(IC):
+    count = 0
     def __init__(self):
-        self.pins = [Pin() for _ in range(16)]
+        super().__init__(pinWidth=4, pinLength=7)
         self.data = 0
     
     def update(self):
@@ -205,9 +293,12 @@ class IC744040:
         else:
             for i in [0, 14, 13, 11, 12, 3, 1, 2, 4, 5, 6, 8]:
                 self.pins[i].output = False
-
+    
 class junction:
+    count = 0
     def __init__(self):
+        self.ID = junction.count
+        junction.count += 1
         self.inputs = []
         self.output = Pin()
     def update(self):
@@ -224,3 +315,9 @@ class circuit:
         for _ in range(10):
             for i in self.ICs:
                 i.update
+
+
+root = tk.Tk(screenName="simulator", baseName="simulator", className="simulator")
+
+
+root.mainloop()
